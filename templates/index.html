@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CHESS BOT</title>
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+<body>
+	<div class="top">
+		CHESS BOT
+	</div>
+
+	<div class="moves-container">
+  <div class="my-moves">
+    <h3>My Moves</h3>
+    <div class="moves-list"></div>
+  </div>
+  <div class="computer-moves">
+    <h3>Computer Moves</h3>
+    <div class="moves-list"></div>
+  </div>
+</div>
+
+
+	<div class="board">
+		<div class="numbers">
+			<div>8</div><div>7</div><div>6</div><div>5</div>
+			<div>4</div><div>3</div><div>2</div><div>1</div>
+		</div>
+
+		<div class="container"></div>
+	</div>
+
+	<div class="letters">
+		<div>A</div><div>B</div><div>C</div><div>D</div>
+		<div>E</div><div>F</div><div>G</div><div>H</div>
+	</div>
+
+<div class="pieces">
+  <button class="piece-btn" data-piece="K">K</button>
+  <button class="piece-btn" data-piece="Q">Q</button>
+  <button class="piece-btn" data-piece="R">R</button>
+  <button class="piece-btn" data-piece="B">B</button>
+  <button class="piece-btn" data-piece="N">N</button>
+  <button class="piece-btn" data-piece="P">P</button>
+</div>
+
+<div class="notation">
+  <button class="notation-btn" data-symbol="+">+</button>
+  <button class="notation-btn" data-symbol="#">#</button>
+  <button class="notation-btn" data-symbol="x">x</button>
+</div>
+
+
+<form id="moveForm">
+  <input type="text" id="moveInput" placeholder="Enter move (e.g., e4, Nf3, exd5)" />
+  <button type="submit">Submit Move</button>
+</form>
+
+<form id="game-form">
+  <label for="quantity">Select a skill level (0-20):</label>
+  <input type="number" id="quantity" name="quantity" min="0" max="20" step="1" value="2">
+  
+  <input type="button" class="res" value="Restart">
+</form>
+
+
+<!-- <div class="res"></div> -->
+
+
+	<div onclick="showhelp()" class="help-bt"><div>Help</div></div>
+	<div class="help">
+	  <div>K = King</div>
+	  <div>Q = Queen</div>
+	  <div>R = Rook</div>
+	  <div>B = Bishop</div>
+	  <div>N = Knight (since K is taken by King)</div>
+	  <div>Pawns have no letter; just the square they move to</div>
+	  <div>Use x to indicate a capture e.g. Nxe5 → Knight captures on e5</div>
+	  <div>+ = check</div>
+	  <div># = checkmate</div>
+	</div>
+
+
+
+
+
+	<script>
+
+const dt = document.querySelector('.help');
+let rg = false; // false = hidden, true = visible
+dt.style.visibility = 'hidden';
+
+function showhelp() {
+    if (!rg) {
+        dt.style.visibility = 'visible'; // show help
+        rg = true;
+    } else {
+        dt.style.visibility = 'hidden'; // hide help
+        rg = false;
+    }
+}
+
+const container = document.querySelector('.container');
+
+let selectedNotation = "";  // +, #, x
+const notationButtons = document.querySelectorAll('.notation-btn');
+
+notationButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // toggle selection
+        if (selectedNotation === btn.getAttribute('data-symbol')) {
+            selectedNotation = "";  // deselect
+            btn.classList.remove('selected');
+        } else {
+            // remove previous selection
+            notationButtons.forEach(b => b.classList.remove('selected'));
+            selectedNotation = btn.getAttribute('data-symbol');
+            btn.classList.add('selected');
+        }
+        console.log('Selected notation:', selectedNotation);
+    });
+});
+
+
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.8;    // slower
+        utterance.pitch = 1.4;   // slightly higher for clarity
+        utterance.volume = 1;    // max volume
+
+        // optional: pick a specific voice if available
+        const voices = speechSynthesis.getVoices();
+        // console.log(voices.length)
+        if (voices.length > 0) {
+            // pick a clear voice (change index if needed)
+            utterance.voice = voices[1];
+        }
+
+        window.speechSynthesis.speak(utterance);
+        console.log("Spoke:", text);
+    } else {
+        console.log("Text-to-Speech not supported in this browser.");
+    }
+}
+
+const moveForm = document.getElementById("moveForm");
+const moveInput = document.getElementById("moveInput");
+const myMovesList = document.querySelector('.my-moves .moves-list');
+const computerMovesList = document.querySelector('.computer-moves .moves-list');
+
+moveForm.addEventListener("submit", (e) => {
+    e.preventDefault();  // prevent page reload
+
+    const move = moveInput.value.trim();
+    if (!move) return;
+
+    // Show player's move
+    myMovesList.textContent = move;
+
+    // Send move to Flask
+    fetch("/move-form", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({move: move})
+    })
+    .then(res => res.text())  // Flask returns plain text
+    .then(data => {
+        console.log("Flask response:", data);
+
+        // Show computer move
+        computerMovesList.textContent = data;
+
+        // Optional: Text-to-Speech
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(data);
+            utterance.rate = 0.8;
+            utterance.pitch = 1.2;
+            window.speechSynthesis.speak(utterance);
+        }
+    })
+    .catch(err => console.error("Error:", err));
+
+    moveInput.value = "";  // clear input
+});
+
+
+// Chess board coordinates
+const files = ['a','b','c','d','e','f','g','h'];
+let selectedPiece = null;
+const pieceButtons = document.querySelectorAll('.piece-btn');
+
+// Generate 8x8 board with algebraic notation IDs
+for (let r = 8; r >= 1; r--) {  // ranks 8 → 1
+    for (let f = 0; f < 8; f++) { // files a → h
+        const cell = document.createElement('div');
+        const tileId = files[f] + r;  // e.g., "e4"
+        cell.id = tileId;
+        cell.classList.add("cell");
+        container.appendChild(cell);
+
+        // Cell click event
+        cell.addEventListener("click", () => {
+            if (!selectedPiece) {
+                alert("Select a piece first!");
+                return;
+            }
+
+            // show latest move in my-moves box
+            const myMovesList = document.querySelector('.my-moves .moves-list');
+			const moveString = selectedPiece + (selectedNotation || "") + tileId;
+			myMovesList.textContent = moveString;
+
+            console.log("Sending move:", selectedPiece, "to", tileId);
+
+            // send move to Flask
+            fetch('/move', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({piece: selectedPiece,note:selectedNotation, tile: tileId})
+            })
+			.then(res => res.text())  // use .text() for plain text
+			.then(data => {
+			    console.log('Flask response:', data);
+			    			   speakText(data);
+
+			    const myMovesList = document.querySelector('.computer-moves .moves-list');
+            	myMovesList.textContent = data;
+			    // comp_data = data; // store response in a variable
+
+
+			})
+            .catch(err => console.error('Error:', err));
+
+            // click animation
+			pieceButtons.forEach(btn => btn.classList.remove('selected'));
+			        selectedPiece = null;
+			selectedNotation = "";
+            cell.classList.add("clicked");
+            setTimeout(() => cell.classList.remove("clicked"), 300);
+        });
+    }
+}
+
+// Piece selection
+pieceButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const piece = btn.getAttribute('data-piece');
+        if (selectedPiece === piece) {
+            // Deselect if same piece clicked again
+            btn.classList.remove('selected');
+            selectedPiece = null;
+        } else {
+            // Select new piece
+            pieceButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedPiece = piece;
+        }
+        console.log('Selected piece:', selectedPiece);
+    });
+});
+
+
+const restartBtn = document.querySelector('.res');
+
+restartBtn.addEventListener('click', () => {
+    // Get the value from the number input
+    const skillInput = document.getElementById('quantity');
+    const skillValue = skillInput.value;
+
+    fetch('/restart', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            action: 'restart',
+            skill: skillValue  // send selected number
+        })
+    })
+    .then(res => res.text())
+    .then(data => {
+        console.log('Restart response:', data);
+
+        // Clear move lists or reset UI if needed
+        document.querySelector('.my-moves .moves-list').textContent = "";
+        document.querySelector('.computer-moves .moves-list').textContent = "";
+    })
+    .catch(err => console.error('Error:', err));
+});
+
+</script>
+
+</body>
+</html>

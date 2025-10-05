@@ -1,0 +1,259 @@
+*{
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.top {
+  background-color: #222;      
+  color: #fff;                
+  font-size: 1.5rem;           
+  font-weight: bold;           
+  text-align: center;          
+  padding: 1rem;               
+  letter-spacing: 2px;         
+  font-family: "Segoe UI", Arial, sans-serif; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
+}
+
+.board {
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	margin-top: 50px;
+}
+
+.numbers {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	margin-right: 5px;
+	font-weight: bold;
+	font-family: "Segoe UI", Arial, sans-serif;
+	    height:  50vh;;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(8, 40px);
+  grid-template-rows: repeat(8, 40px);
+  gap: 2px;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background-color: #f5d7b0;
+  border: 1px solid #e0c9a6;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.cell.clicked {
+  background-color: #ffd9a0;   
+  transform: scale(1.1);      
+}
+
+.letters {
+	display: grid;
+	grid-template-columns: repeat(8, 40px);
+	margin-top: 5px;
+	margin-left: 27px;
+	font-weight: bold;
+	font-family: "Segoe UI", Arial, sans-serif;
+	text-align: center;
+}
+
+
+.help {
+  background-color: #fff8dc;        /* soft cream background */
+  border: 2px solid #e0c9a6;       /* subtle border like your cells */
+  padding: 15px 20px;
+  margin: 20px auto;
+  width: 80%;
+  max-width: 600px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.help div{
+  margin-bottom: 6px; /* spacing between lines */
+}
+
+
+.help-bt{
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+}
+.help-bt div{
+  background-color: #222;
+  color: #fff;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-family: "Segoe UI", Arial, sans-serif;
+  cursor: pointer;
+  display: inline-block;
+  margin: 20px auto;
+  text-align: center;
+  border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  user-select: none;
+}
+
+.help-bt div:hover {
+  background-color: #444;
+}
+
+
+.moves-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* space between boxes */
+  margin: 20px auto;
+  max-width: 800px;
+      margin-left: 10px;
+    margin-right: 10px;
+}
+
+.my-moves, .computer-moves {
+  flex: 1; /* take equal width */
+  background-color: #f5f5f5; 
+  border: 1px solid #e0c9a6;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.my-moves h3, .computer-moves h3 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.moves-list {
+  min-height: 50px; /* reserve space for moves */
+  overflow-y: auto;   /* scroll if moves exceed box */
+  padding: 5px;
+}
+
+
+.pieces {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.piece-btn {
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid #e0c9a6;
+  border-radius: 6px;
+  background-color: #f5d7b0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.piece-btn:hover {
+  background-color: #ffd9a0;
+  transform: scale(1.05);
+}
+
+.piece-btn:active {
+  transform: scale(0.95);
+}
+
+.piece-btn.selected {
+  background-color: #4CAF50; /* green */
+  color: #fff;
+}
+
+
+.res {
+  background-color: #222;
+  color: #fff;
+  padding: 10px 20px;
+  text-align: center;
+  width: 100px;
+  margin: 20px auto;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 6px;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.res:hover {
+  background-color: #444;
+}
+
+
+.notation {
+  margin-top: 10px;
+}
+
+.notation-btn {
+  padding: 8px 12px;
+  margin: 2px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+
+<style>
+  /* Center the form */
+  #game-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 250px;
+    padding: 15px;
+    border: 2px solid #444;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Label styling */
+  #game-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  /* Number input styling */
+  #game-form input[type="number"] {
+    width: 100%;
+    padding: 5px 10px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  /* Restart button styling */
+  #game-form input[type="button"] {
+    padding: 8px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  #game-form input[type="button"]:hover {
+    background-color: #0056b3;
+  }
